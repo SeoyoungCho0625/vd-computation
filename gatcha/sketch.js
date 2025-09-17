@@ -26,5 +26,5 @@ function setup() {
 function draw() {
   background("beige");
   image(body, 0, 0);
-  image(face, 55, 65);  
+  image(face, 92, 66);  
 }
