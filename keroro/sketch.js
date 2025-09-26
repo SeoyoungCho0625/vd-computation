@@ -10,40 +10,25 @@ background(mouseY/2.35);
 
 
   //face
-  fill('#F4E2C2');
+  fill('#61B45F');
   circle(341,230,230);
 
   // ears
-  fill('black');
+  fill('#B18D43');
   circle(293,86,136);
   circle(191,188,150);
 
 
   //eyes
-  fill('black');
+  fill('white');
   circle(366,205,44);
   circle(417,205,44);
-  fill('white');
-  circle(355,195,11);
-  circle(407,195,11);
-
-  //nose
-  fill('black');
-  circle(468,244,66); 
-  fill('white');
-  circle(475,230,22); 
-
-  //hands
-  fill('#F4E2C2');
-  circle(100,330,80);
-  circle(450,330,80)
 
 
   //mouth
   fill('red');
   circle(390,260,55);  
   
-
   //body
   circle(384,443,220);    
 
