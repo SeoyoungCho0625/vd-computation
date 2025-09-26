@@ -1,12 +1,12 @@
 function setup() {
-  createCanvas(600, 800);
-  background('silver');
+  createCanvas(1134, 1134);
+  background('#302A38');
   noStroke();
 }
 
 
 function draw() {
-background(mouseX/2.35);
+background(mouseY/2.35);
 
 
   //face
