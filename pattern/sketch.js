@@ -50,7 +50,7 @@ function draw() {
      rotate(random(TWO_PI));       // random rotation
       const s = random(300, 500);   // side length
       const h = (sqrt(3) / 2) * s;  // height of equilateral triangle
-      fill('lightyellow'); 
+      fill('lightgreen'); 
       triangle(-s/2, h/3, s/2, h/3, 0, -2*h/3);
       pop();
 
