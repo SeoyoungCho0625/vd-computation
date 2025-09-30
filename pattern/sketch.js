@@ -5,8 +5,8 @@ let isDaytime = false;
 function setup() {
  createCanvas(1080, 1080);
  noStroke();
- // frameRate(2);
- noLoop();
+ frameRate(7);
+ 
 
  const currentHour = hour();
   isDaytime = (currentHour >= 7 && currentHour < 19);
@@ -14,8 +14,8 @@ function setup() {
 
 function draw() {
  background(255, 255, 220);
- const cz = random(40, CELL);
- const sz = random(40, CELL);
+ const cz = random(80, CELL);
+ const sz = random(80, CELL);
 
  if (isDaytime == true) {
     background('#fcf9d2ff'); 
@@ -40,7 +40,7 @@ function draw() {
      push();
      blendMode(MULTIPLY);
      translate(cx, cy);
-     fill('pink');
+     fill('cyan');
      rectMode(CENTER);
      rect(0, 0, sz, sz);
      pop();
@@ -50,7 +50,7 @@ function draw() {
      rotate(random(TWO_PI));       // random rotation
       const s = random(300, 500);   // side length
       const h = (sqrt(3) / 2) * s;  // height of equilateral triangle
-      fill('cyan'); 
+      fill('lightyellow'); 
       triangle(-s/2, h/3, s/2, h/3, 0, -2*h/3);
       pop();
 
