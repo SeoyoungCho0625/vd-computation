@@ -1,17 +1,27 @@
 const GRID = 2;
 const CELL = 1080 / GRID;
+let isDaytime = false;
 
 function setup() {
  createCanvas(1080, 1080);
  noStroke();
  // frameRate(2);
  noLoop();
+
+ const currentHour = hour();
+  isDaytime = (currentHour >= 7 && currentHour < 19);
 }
 
 function draw() {
  background(255, 255, 220);
  const cz = random(40, CELL);
  const sz = random(40, CELL);
+
+ if (isDaytime == true) {
+    background('#fcf9d2ff'); 
+  } else {
+    background('#000022'); 
+  }
 
  for (let gy = 0; gy < GRID; gy++) {
 
