@@ -1,4 +1,4 @@
-const GRID = 2;
+const GRID = 15;
 const CELL = 1080 / GRID;
 let isDaytime = false;
 
@@ -6,6 +6,7 @@ function setup() {
  createCanvas(1080, 1080);
  noStroke();
  frameRate(7);
+
  
 
  const currentHour = hour();
@@ -50,9 +51,10 @@ function draw() {
      rotate(random(TWO_PI));       // random rotation
       const s = random(300, 500);   // side length
       const h = (sqrt(3) / 2) * s;  // height of equilateral triangle
-      fill('lightgreen'); 
+      fill('coral'); 
       triangle(-s/2, h/3, s/2, h/3, 0, -2*h/3);
       pop();
+
 
    }
  }
