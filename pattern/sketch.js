@@ -49,7 +49,7 @@ function draw() {
      push();
      translate(width/2, height/2); // move origin to canvas center
      rotate(random(TWO_PI));       // random rotation
-      const s = random(300, 500);   // side length
+      const s = random(100, 500);   // side length
       const h = (sqrt(3) / 2) * s;  // height of equilateral triangle
       fill('coral'); 
       triangle(-s/2, h/3, s/2, h/3, 0, -2*h/3);
