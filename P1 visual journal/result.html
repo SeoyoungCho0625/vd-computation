@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Image Result</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+                Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f9f9f9;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #result-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        canvas {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+        #download-link {
+            display: none; /* 생성 전에는 숨김 */
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        #download-link:hover {
+            background-color: #218838;
+        }
+        #loading-text {
+            display: block;
+            margin-top: 20px;
+            font-style: italic;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="result-area">
+        <h3>Your Result Image</h3>
+        <canvas id="image-canvas" width="300" height="300"></canvas>
+        <span id="loading-text">Generating...</span>
+        <a id="download-link" download="my-daily-avatar.png">Save as PNG</a>
+    </div>
+
+    <script>
+        // ------------------------------------------------------------------
+        // [중요!] 이미지 소스 설정 (이전과 동일, 실제 URL로 변경 필요)
+        // ------------------------------------------------------------------
+        const IMAGE_SOURCES = {
+            // --- 1. Meals (Background) ---
+            meals: {
+                '3': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAYAAAB5fY51AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAXKADAAQAAAABAAAAWAAAAABwEa/GAAAAEElEQVR42u3BAQ0AAADCoPdPbQ8HFAAAAAAAAAAAAAAAAAAAAAAAAAD4dAkAAAEAYoV6AAAAAElFTkSuQmCC', // 3 Meals (Green)
+                '2': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAYAAAB5fY51AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAXKADAAQAAAABAAAAWAAAAABwEa/GAAAAEElEQVR42u3BAQ0AAADCoPdPbQ8HFAAAAAAAAAAAAAAAAAD8upYfAAEAzP9qhQAAAABJRU5ErkJggg==', // 2 Meals (Yellow)
+                '1': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAYAAAB5fY51AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAXKADAAQAAAABAAAAWAAAAABwEa/GAAAAEElEQVR42u3BAQ0AAADCoPdPbQ8HFAAAAAAAAAAAAAAAAAD8upYxAAEAyP5qhQAAAABJRU5ErkJggg==', // 1 Meal (Orange)
+                '0': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAYAAAB5fY51AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAXKADAAQAAAABAAAAWAAAAABwEa/GAAAAEElEQVR42u3BAQ0AAADCoPdPbQ8HFAAAAAAAAAAAAAAAAAD8upY9AAEAyvRqhQAAAABJRU5ErkJggg=='  // 0 Meals (Gray)
+            },
+            // --- 2. To-do (Pattern) ---
+            todo: {
+                'high': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAYAAAB5fY51AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAXKADAAQAAAABAAAAWAAAAABwEa/GAAABbUlEQVR42u3bwQnCQBRF0XeGQUIkREV0EB3EBVmIERmBERkQBURBVCQhMggyQnfv2B7u7Q3HmW/ePJ+3J6iqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsvpyA+B9jnefyXkX8IXseQkAgGQAgGwAgGwAgGwAgGQAgGwAgGwAgGQAgGQAgGwAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGwAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAgGQAQCyz0e/2u9/AAB/wkEAAGQAgGwAgGwAgGQAgGwAgGQAgGwAgGQAgGQAQCwPy0EAGQAgGwAgGQAQCyzwe/3sd/HePylqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqrf9AOVwJjks0gcAAAAAASUVORK5CYII=', // High (Blue Star)
+                'medium': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAYAAAB5fY51AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAXKADAAQAAAABAAAAWAAAAABwEa/GAAABHElEQVR42u3dsQkAMAhEUe/d/YT9qAQQMvEwQGg2m4dHeJcWAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgqRMAAEg+AQASPgcAAKSfAQBINgIAkD8LAMAkwDIBAMC0AIAkAwCQZAIAJBsAgGQDAJAkAwCQZAYAkAwCQNIBAGQGAJAkAgCQbAAAkAwCQJAMAECSCQBAkgkAQJIIAEAyAQBINgAAyQYAIJkAAEg2AABIJgAAyQYAIJkAAEg2AQCQBwCA5AMAADwIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD4XweAAEAFMGlbAAAAAElFTkSuQmCC', // Medium (Blue Circle)
+                'low': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAYAAAB5fY51AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAXKADAAQAAAABAAAAWAAAAABwEa/GAAAAEElEQVR42u3BAQ0AAADCoPdPbQ8HFAAAAAAAAAAAAAAAAAD8upYfAAEAzP9qhQAAAABJRU5ErkJggg=='    // Low (Transparent)
+            },
+            // --- 3. Exercise (Border) ---
+            exercise: {
+                'yes': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAYAAAB5fY51AAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAXKADAAQAAAABAAAAWAAAAABwEa/GAAABfElEQVR42u3dwQnCQBRF0XmGEBmIERnEBVmIERmIERmIERnEBVkREVkREdHxPdnD/bYHvOd58plxHu9NVFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVWV+XoD4H0u93ku510Av+SXlwAASKYAEimARAIgkQRIIgGQSAIkUgCJBEAiCZBIAiRSAIkEQCIJkEgCJJIAiSRAIgmQSAMkkgBJJACSSAAkkgBJJACSSAAkkgBJJACSSAAkkgBJJACSSAAkkgBJJACSSAAkkgBJJACSSAAkkgBJJACSSAAkkgBJJACSSAAkkgBJJACSSAAkkgBJJACSSAAkkgBJJACSSAAkkgBJJACSSAAkkgBJJACSSAAkkgBJJACSSAAkkgBJJACSSAAkkgBJJACSSAAkkgBJJACSSAAkkgBJJACSSAAkkgBJJACSSAAkkgBJJACSSAAkkQBIIgGSyEC/2+9+AwD4S44AECmARBIgkQRIJAGQSAIkUgCJBEAiCZBIAiRSAIkEQCIJkEgCJJEAiSRAIgmQSAMkkgBJJACSSAAkkgBIJgGSyEDf+nu/j/E+l6qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqv4BAz8kYl+qrnUAAAAASUVORK5CYII=', // Yes (Yellow Border)
+                'no': 'data:EElEQVR42u3BAQ0AAADCoPdPbQ8HFAAAAAAAAAAAAAAAAAD8upYfAAEAzP9qhQAAAABJRU5ErkJggg=='      // No (Transparent)
+            }
+        };
+
+        // 필요한 DOM 요소 가져오기
+        const canvas = document.getElementById('image-canvas');
+        const ctx = canvas.getContext('2d');
+        const downloadLink = document.getElementById('download-link');
+        const loadingText = document.getElementById('loading-text');
+
+        // 여러 이미지 URL을 받아 모두 로드되면 이미지 객체 배열을 반환하는 함수
+        function loadImages(sources) {
+            const promises = sources.map(src => {
+                if (!src) {
+                    // 혹시 값이 비어있으면 (예: low, no) 빈 이미지로 처리
+                    return Promise.resolve(new Image()); 
+                }
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.onload = () => resolve(img);
+                    img.onerror = reject;
+                    img.src = src;
+                });
+            });
+            return Promise.all(promises);
+        }
+
+        // 페이지가 로드되면 바로 이미지 생성 프로세스 시작
+        window.addEventListener('DOMContentLoaded', async () => {
+            
+            // 1. URL에서 설문조사 값 가져오기
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // 값이 없을 경우 기본값 설정 (index.html에서 오지 않았을 경우 대비)
+            const mealsValue = urlParams.get('meals') || '3';
+            const todoValue = urlParams.get('todo') || 'high';
+            const exerciseValue = urlParams.get('exercise') || 'yes';
+
+            // 2. 값에 해당하는 이미지 URL 매핑하기
+            const sourcesToLoad = [
+                IMAGE_SOURCES.meals[mealsValue],
+                IMAGE_SOURCES.todo[todoValue],
+                IMAGE_SOURCES.exercise[exerciseValue]
+            ];
+
+            try {
+                // 3. 모든 이미지 로드하기
+                const [mealsImg, todoImg, exerciseImg] = await loadImages(sourcesToLoad);
+                
+                // 4. 캔버스 초기화
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // 5. 캔버스에 이미지 순서대로 그리기 (오버레이)
+                ctx.drawImage(mealsImg, 0, 0, canvas.width, canvas.height);
+                ctx.drawImage(todoImg, 0, 0, canvas.width, canvas.height);
+                ctx.drawImage(exerciseImg, 0, 0, canvas.width, canvas.height);
+
+                // 6. 캔버스 데이터를 PNG 데이터 URL로 변환
+                const dataURL = canvas.toDataURL('image/png');
+
+                // 7. 다운로드 링크 설정 및 보이기
+                downloadLink.href = dataURL;
+                downloadLink.style.display = 'block';
+                loadingText.style.display = 'none'; // 'Generating...' 텍스트 숨기기
+
+            } catch (error) {
+                console.error('Failed to load or draw images:', error);
+                loadingText.textContent = 'Error generating image. Please check console.';
+                loadingText.style.color = 'red';
+            }
+        });
+
+    </script>
+</body>
+</html>
