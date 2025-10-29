@@ -5,78 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Initial Setup</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-                Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            display: grid;
-            place-items: center;
-            min-height: 100vh;
-            background-color: #f9f9f9;
-        }
-        .setup-box {
-            width: 300px;
-            background: #fff;
-            padding: 20px 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; display: grid; place-items: center; min-height: 100vh; background-color: #f9f9f9; }
+        .setup-box { width: 300px; background: #fff; padding: 20px 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
         h3 { text-align: center; }
-        .input-group {
-            margin-bottom: 20px;
-        }
-        .input-group label {
-            display: block;
-            font-weight: 500;
-            margin-bottom: 5px;
-        }
-        .input-group select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #007aff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 1em;
-            cursor: pointer;
-        }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-weight: 500; margin-bottom: 5px; }
+        .input-group select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        button { width: 100%; padding: 12px; background-color: #007aff; color: white; border: none; border-radius: 5px; font-size: 1em; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div class="setup-box">
-        <h3>Set Your Meal Sizes</h3>
-        <p style="font-size: 0.9em; color: #555; text-align: center;">Set the usual size for each meal.</p>
+        <h3>Assign Your Meal Images</h3>
+        <p style="font-size: 0.9em; color: #555; text-align: center;">Assign one of your images (1, 2, or 3) to each meal.</p>
         
         <div class="input-group">
-            <label for="breakfast-size">Breakfast</label>
-            <select id="breakfast-size">
-                <option value="small">Small</option>
-                <option value="medium" selected>Medium</option>
-                <option value="large">Large</option>
+            <label for="breakfast-assign">Breakfast</label>
+            <select id="breakfast-assign">
+                <option value="image1">Meal Image 1</option>
+                <option value="image2">Meal Image 2</option>
+                <option value="image3">Meal Image 3</option>
             </select>
         </div>
         
         <div class="input-group">
-            <label for="lunch-size">Lunch</label>
-            <select id="lunch-size">
-                <option value="small">Small</option>
-                <option value="medium" selected>Medium</option>
-                <option value="large">Large</option>
+            <label for="lunch-assign">Lunch</label>
+            <select id="lunch-assign">
+                <option value="image1">Meal Image 1</option>
+                <option value="image2" selected>Meal Image 2</option>
+                <option value="image3">Meal Image 3</option>
             </select>
         </div>
 
         <div class="input-group">
-            <label for="dinner-size">Dinner</label>
-            <select id="dinner-size">
-                <option value="small">Small</option>
-                <option value="medium" selected>Medium</option>
-                <option value="large">Large</option>
+            <label for="dinner-assign">Dinner</label>
+            <select id="dinner-assign">
+                <option value="image1">Meal Image 1</option>
+                <option value="image2">Meal Image 2</option>
+                <option value="image3" selected>Meal Image 3</option>
             </select>
         </div>
 
@@ -85,17 +52,15 @@
 
     <script>
         document.getElementById('save-settings').addEventListener('click', () => {
-            // <select> 태그에서 선택된 값을 가져옵니다.
-            const breakfast = document.getElementById('breakfast-size').value;
-            const lunch = document.getElementById('lunch-size').value;
-            const dinner = document.getElementById('dinner-size').value;
+            const breakfast = document.getElementById('breakfast-assign').value;
+            const lunch = document.getElementById('lunch-assign').value;
+            const dinner = document.getElementById('dinner-assign').value;
 
-            // 브라우저의 localStorage에 값을 저장합니다.
-            localStorage.setItem('mealSize_breakfast', breakfast);
-            localStorage.setItem('mealSize_lunch', lunch);
-            localStorage.setItem('mealSize_dinner', dinner);
+            // [수정됨] localStorage에 '할당' 정보를 저장
+            localStorage.setItem('mealAssignment_breakfast', breakfast);
+            localStorage.setItem('mealAssignment_lunch', lunch);
+            localStorage.setItem('mealAssignment_dinner', dinner);
 
-            // 저장이 완료되었음을 알리고 설문 페이지(index.html)로 이동합니다.
             alert('Settings saved!');
             window.location.href = 'index.html'; 
         });
