@@ -23,27 +23,27 @@
         <div class="input-group">
             <label for="breakfast-assign">Breakfast</label>
             <select id="breakfast-assign">
-                <option value="image1">I eat a little</option>
-                <option value="image2">I eat an average amount</option>
-                <option value="image3">I eat a lot</option>
+                <option value="small">I eat a little</option>
+                <option value="medium">I eat an average amount</option>
+                <option value="large">I eat a lot</option>
             </select>
         </div>
         
         <div class="input-group">
             <label for="lunch-assign">Lunch</label>
             <select id="lunch-assign">
-                <option value="image1">I eat a little</option>
-                <option value="image2" selected>I eat an average amount</option>
-                <option value="image3">I eat a lot</option>
+                <option value="small">I eat a little</option>
+                <option value="medium" selected>I eat an average amount</option>
+                <option value="large">I eat a lot</option>
             </select>
         </div>
 
         <div class="input-group">
             <label for="dinner-assign">Dinner</label>
             <select id="dinner-assign">
-                <option value="image1">I eat a little</option>
-                <option value="image2">I eat an average amount</option>
-                <option value="image3" selected>I eat a lot</option>
+                <option value="small">I eat a little</option>
+                <option value="medium">I eat an average amount</option>
+                <option value="large" selected>I eat a lot</option>
             </select>
         </div>
 
@@ -56,7 +56,7 @@
             const lunch = document.getElementById('lunch-assign').value;
             const dinner = document.getElementById('dinner-assign').value;
 
-            // [수정됨] localStorage에 '할당' 정보를 저장
+            // 이제 'small', 'medium', 'large' 값이 저장됩니다.
             localStorage.setItem('mealAssignment_breakfast', breakfast);
             localStorage.setItem('mealAssignment_lunch', lunch);
             localStorage.setItem('mealAssignment_dinner', dinner);
