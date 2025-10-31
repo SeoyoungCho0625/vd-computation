@@ -5,10 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Image Result</title>
     <style>
-        /* CSS는 이전과 동일합니다 */
+        /* 캔버스 크기는 600x600으로 유지 */
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background-color: #f9f9f9; padding: 20px; box-sizing: border-box; }
         #result-area { display: flex; flex-direction: column; align-items: center; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
-        canvas { border: 2px dashed #ccc; border-radius: 8px; background-color: #fff; }
+        canvas { 
+            width: 600px; 
+            height: 600px; 
+            border: 2px dashed #ccc; 
+            border-radius: 8px; 
+            background-color: #fff; 
+        }
         #download-link { display: none; margin-top: 20px; padding: 10px 20px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; transition: background-color 0.2s; }
         #download-link:hover { background-color: #218838; }
         #loading-text { display: block; margin-top: 20px; font-style: italic; color: #555; }
@@ -17,33 +23,35 @@
 <body>
 
     <div id="result-area">
-        <h3>Your Result Image</h3>
-        <canvas id="image-canvas" width="300" height="300"></canvas>
+        <h3>Your Image Result</h3>
+        <canvas id="image-canvas" width="600" height="600"></canvas>
         <span id="loading-text">Generating...</span>
         <a id="download-link" download="my-daily-avatar.png">Save as PNG</a>
     </div>
+    
     <script>
-
-        // ------------------------------------------------------------------
-        // [여기에 이미지 경로 삽입]
-        // ------------------------------------------------------------------
-        // 가져오신 3개의 이미지 경로를 'image1', 'image2', 'image3'에 할당하세요.
-        // (예: 'images/small-circle.png')
-        // ------------------------------------------------------------------
+        // [참고]
+        // 이제 이 객체의 width와 height 값은 사용되지 않습니다.
+        // 오직 'src'와 'x', 'y' 값만 사용됩니다.
         const IMAGE_SOURCES = {
             meals: {
-                'image1': 'meal1.png', 
-                'image2': 'meal2.png', 
-                'image3': 'meal3.png'  
+                'image1': { src: 'meal1.png', x: 150, y: 350, width: 200, height: 200 }, 
+                'image2': { src: 'meal2.png', x: 300, y: 300, width: 250, height: 250 }, 
+                'image3': { src: 'meal3.png', x: 450, y: 400, width: 220, height: 220 }  
             },
             todo: { 
-                'high': 'meal1.png', 
-                'medium': 'meal1.png', 
-                'low': 'meal1.png'
+                'high': { src: 'todo2.png', x: 300, y: 300, width: 600, height: 600 },
+                'medium': { src: 'todo1.png', x: 300, y: 300, width: 600, height: 600 },
+                'low': { src: 'todo3.png', x: 300, y: 300, width: 600, height: 600 }
             },
             exercise: { 
-                'yes':'meal1.png', 
-                'no': 'meal1.png'
+                'workout': { src: 'workout1.png', x: 450, y: 150, width: 200, height: 200 }, 
+                'water': { src: 'water1.png', x: 150, y: 150, width: 150, height: 150 }
+            },
+            relationship: {
+                'low': { src: 'relationship1.png', x: 300, y: 450, width: 300, height: 150 },
+                'medium': { src: 'relationship2.png', x: 300, y: 450, width: 280, height: 130 },
+                'high': { src: 'relationship3.png', x: 300, y: 450, width: 320, height: 170 }
             }
         };
 
@@ -52,70 +60,92 @@
         const downloadLink = document.getElementById('download-link');
         const loadingText = document.getElementById('loading-text');
 
-        // 이미지 로드 함수 (변경 없음)
-        function loadImages(sources) {
-            const promises = sources.map(src => {
-                if (!src) return Promise.resolve(new Image()); 
-                return new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.onload = () => resolve(img);
-                    img.onerror = reject;
-                    img.src = src;
-                });
-            });
-            return Promise.all(promises);
-        }
-
         // 페이지 로드 시 실행
         window.addEventListener('DOMContentLoaded', async () => {
             
-            // 1. URL에서 설문 값 가져오기 (오늘 무엇을 먹었는지)
+            // 1. URL/localStorage 값 가져오기 (변경 없음)
             const urlParams = new URLSearchParams(window.location.search);
             const todoValue = urlParams.get('todo') || 'high';
-            const exerciseValue = urlParams.get('exercise') || 'yes';
+            const exerciseValues = urlParams.getAll('exercise');
+            const relationshipValue = parseInt(urlParams.get('relationship') || '50', 10);
 
-            // 2. [수정됨] localStorage에서 '할당' 값 가져오기
-            // (기본값으로 'image1', 'image2', 'image3'을 각각 설정)
             const breakfastAssign = localStorage.getItem('mealAssignment_breakfast') || 'image1';
             const lunchAssign = localStorage.getItem('mealAssignment_lunch') || 'image2';
             const dinnerAssign = localStorage.getItem('mealAssignment_dinner') || 'image3';
 
-            // 3. 불러올 이미지 목록(sourcesToLoad) 생성
+            let relationshipKey;
+            if (relationshipValue <= 33) {
+                relationshipKey = 'low';
+            } else if (relationshipValue <= 66) {
+                relationshipKey = 'medium';
+            } else {
+                relationshipKey = 'high';
+            }
+
+            // 2. 불러올 이미지 목록 생성 (변경 없음)
             const sourcesToLoad = [];
 
-            // 3-1. 배경 레이어 (할 일, 운동)
-            sourcesToLoad.push(IMAGE_SOURCES.todo[todoValue]);
-            sourcesToLoad.push(IMAGE_SOURCES.exercise[exerciseValue]);
+            sourcesToLoad.push({ ...IMAGE_SOURCES.todo[todoValue], blendMode: 'multiply' });
 
-            // 3-2. [수정됨] 식사 레이어 추가 (선택된 것만, '할당된' 이미지로)
-            // 그리는 순서: 아침 -> 점심 -> 저녁 (첨부 이미지 순서)
+            if (exerciseValues.includes('workout')) {
+                sourcesToLoad.push({ ...IMAGE_SOURCES.exercise.workout, blendMode: 'multiply' });
+            }
+            if (exerciseValues.includes('water')) {
+                sourcesToLoad.push({ ...IMAGE_SOURCES.exercise.water, blendMode: 'multiply' });
+            }
+            
+            sourcesToLoad.push({ ...IMAGE_SOURCES.relationship[relationshipKey], blendMode: 'multiply' });
+
             if (urlParams.has('breakfast')) {
-                // 아침에 할당된 이미지를 가져옴 (예: 'image3')
-                sourcesToLoad.push(IMAGE_SOURCES.meals[breakfastAssign]);
+                sourcesToLoad.push({ ...IMAGE_SOURCES.meals[breakfastAssign], blendMode: 'multiply' });
             }
             if (urlParams.has('lunch')) {
-                // 점심에 할당된 이미지를 가져옴 (예: 'image1')
-                sourcesToLoad.push(IMAGE_SOURCES.meals[lunchAssign]);
+                sourcesToLoad.push({ ...IMAGE_SOURCES.meals[lunchAssign], blendMode: 'multiply' });
             }
             if (urlParams.has('dinner')) {
-                // 저녁에 할당된 이미지를 가져옴 (예: 'image2')
-                sourcesToLoad.push(IMAGE_SOURCES.meals[dinnerAssign]);
+                sourcesToLoad.push({ ...IMAGE_SOURCES.meals[dinnerAssign], blendMode: 'multiply' });
             }
 
             try {
-                // 4. 모든 선택된 이미지를 불러옴
-                const loadedImages = await loadImages(sourcesToLoad);
+                // 3. 이미지 로드 (변경 없음)
+                const loadedImagePromises = sourcesToLoad.map(item => {
+                    return new Promise((resolve, reject) => {
+                        if (!item.src) { 
+                            resolve({ img: new Image(), ...item });
+                            return;
+                        }
+                        const img = new Image();
+                        img.onload = () => resolve({ img: img, ...item });
+                        img.onerror = reject;
+                        img.src = item.src;
+                    });
+                });
+                const loadedImageObjects = await Promise.all(loadedImagePromises);
                 
+                // 4. 캔버스 초기화 (변경 없음)
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                // 5. 불러온 이미지들을 순서대로 캔버스에 모두 그림
-                for (const img of loadedImages) {
-                    if (img.width > 0) { 
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                // ----------------------------------------------------
+                // [수정됨] 모든 이미지 크기를 300x300으로 고정합니다.
+                // ----------------------------------------------------
+                const fixedSize = 300; 
+
+                // 5. 이미지 그리기
+                for (const item of loadedImageObjects) {
+                    if (item.img.width > 0) { 
+                        ctx.globalCompositeOperation = item.blendMode;
+                        
+                        // item.width와 item.height 대신 fixedSize를 사용
+                        const x = item.x - (fixedSize / 2);
+                        const y = item.y - (fixedSize / 2);
+                        
+                        ctx.drawImage(item.img, x, y, fixedSize, fixedSize);
                     }
                 }
+                
+                ctx.globalCompositeOperation = 'source-over'; 
 
-                // 6. 다운로드 링크 생성 (기존과 동일)
+                // 6. 다운로드 링크 생성 (변경 없음)
                 const dataURL = canvas.toDataURL('image/png');
                 downloadLink.href = dataURL;
                 downloadLink.style.display = 'block';
@@ -127,7 +157,6 @@
                 loadingText.style.color = 'red';
             }
         });
-
     </script>
 </body>
 </html>

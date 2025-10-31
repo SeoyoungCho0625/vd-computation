@@ -72,12 +72,28 @@
 
         <fieldset>
             <legend>3. Health 🤸</legend>
-            <label><input type="checkbox" name="exercise" value="yes" checked> workout</label>
-            <label><input type="checkbox" name="exercise" value="no"> water</label>
+            <label><input type="checkbox" name="exercise" value="workout" checked> workout</label>
+            <label><input type="checkbox" name="exercise" value="water"> water</label>
+        </fieldset>
+
+        <fieldset>
+            <legend>4. Relationship 💖</legend>
+            <input type="range" id="relationship-slider" name="relationship" min="0" max="100" value="50" style="width: 100%;">
+            <div style="text-align: center; font-weight: bold; margin-top: 5px;">
+                <output id="relationship-value">50</output>
+            </div>
         </fieldset>
 
         <button type="submit">Generate Image</button>
     </form>
+
+    <script>
+        const slider = document.getElementById('relationship-slider');
+        const output = document.getElementById('relationship-value');
+        slider.oninput = function() {
+            output.innerHTML = this.value;
+        }
+    </script>
 
 </body>
 </html>
