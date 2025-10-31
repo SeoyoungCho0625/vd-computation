@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Image Result</title>
     <style>
-        /* 캔버스 크기는 600x600으로 유지 */
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background-color: #f9f9f9; padding: 20px; box-sizing: border-box; }
         #result-area { display: flex; flex-direction: column; align-items: center; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
         canvas { 
@@ -23,35 +22,34 @@
 <body>
 
     <div id="result-area">
-        <h3>Your Image Result</h3>
+        <h3>Your Result Image</h3>
         <canvas id="image-canvas" width="600" height="600"></canvas>
         <span id="loading-text">Generating...</span>
         <a id="download-link" download="my-daily-avatar.png">Save as PNG</a>
     </div>
     
     <script>
-        // [참고]
-        // 이제 이 객체의 width와 height 값은 사용되지 않습니다.
-        // 오직 'src'와 'x', 'y' 값만 사용됩니다.
+        // [수정됨] meals의 키가 'small', 'medium', 'large'로 변경되었습니다.
+        // 각 키에 연결된 이미지(meal1.png 등)와 좌표(x, y)를 확인하세요.
         const IMAGE_SOURCES = {
             meals: {
-                'image1': { src: 'meal1.png', x: 150, y: 350, width: 200, height: 200 }, 
-                'image2': { src: 'meal2.png', x: 300, y: 300, width: 250, height: 250 }, 
-                'image3': { src: 'meal3.png', x: 450, y: 400, width: 220, height: 220 }  
+                'small':  { src: 'meal1.png', x: 150, y: 350 }, // '적게' 먹을 때 meal1.png
+                'medium': { src: 'meal2.png', x: 300, y: 300 }, // '적당히' 먹을 때 meal2.png
+                'large':  { src: 'meal3.png', x: 450, y: 400 }  // '많이' 먹을 때 meal3.png
             },
             todo: { 
-                'high': { src: 'todo2.png', x: 300, y: 300, width: 600, height: 600 },
-                'medium': { src: 'todo1.png', x: 300, y: 300, width: 600, height: 600 },
-                'low': { src: 'todo3.png', x: 300, y: 300, width: 600, height: 600 }
+                'high':   { src: 'todo2.png', x: 300, y: 300 },
+                'medium': { src: 'todo1.png', x: 300, y: 300 },
+                'low':    { src: 'todo3.png', x: 300, y: 300 }
             },
             exercise: { 
-                'workout': { src: 'workout1.png', x: 450, y: 150, width: 200, height: 200 }, 
-                'water': { src: 'water1.png', x: 150, y: 150, width: 150, height: 150 }
+                'workout': { src: 'workout1.png', x: 450, y: 150 }, 
+                'water':   { src: 'water1.png', x: 150, y: 150 }
             },
             relationship: {
-                'low': { src: 'relationship1.png', x: 300, y: 450, width: 300, height: 150 },
-                'medium': { src: 'relationship2.png', x: 300, y: 450, width: 280, height: 130 },
-                'high': { src: 'relationship3.png', x: 300, y: 450, width: 320, height: 170 }
+                'low':    { src: 'relationship1.png', x: 300, y: 450 },
+                'medium': { src: 'relationship2.png', x: 300, y: 450 },
+                'high':   { src: 'relationship3.png', x: 300, y: 450 }
             }
         };
 
@@ -63,16 +61,19 @@
         // 페이지 로드 시 실행
         window.addEventListener('DOMContentLoaded', async () => {
             
-            // 1. URL/localStorage 값 가져오기 (변경 없음)
+            // 1. URL 값 가져오기 (변경 없음)
             const urlParams = new URLSearchParams(window.location.search);
             const todoValue = urlParams.get('todo') || 'high';
             const exerciseValues = urlParams.getAll('exercise');
             const relationshipValue = parseInt(urlParams.get('relationship') || '50', 10);
 
-            const breakfastAssign = localStorage.getItem('mealAssignment_breakfast') || 'image1';
-            const lunchAssign = localStorage.getItem('mealAssignment_lunch') || 'image2';
-            const dinnerAssign = localStorage.getItem('mealAssignment_dinner') || 'image3';
+            // 2. [수정됨] setup.html과 동일한 localStorage 키를 사용합니다.
+            // 기본값으로 'medium'을 사용합니다.
+            const breakfastAssign = localStorage.getItem('mealAssignment_breakfast') || 'medium';
+            const lunchAssign = localStorage.getItem('mealAssignment_lunch') || 'medium';
+            const dinnerAssign = localStorage.getItem('mealAssignment_dinner') || 'medium';
 
+            // 3. relationship 값 변환 (변경 없음)
             let relationshipKey;
             if (relationshipValue <= 33) {
                 relationshipKey = 'low';
@@ -82,9 +83,11 @@
                 relationshipKey = 'high';
             }
 
-            // 2. 불러올 이미지 목록 생성 (변경 없음)
+            // 4. 불러올 이미지 목록 생성 (로직 변경 없음)
             const sourcesToLoad = [];
 
+            // [수정됨] IMAGE_SOURCES에서 객체를 가져올 때 스프레드 연산자(...)를 사용합니다.
+            // (src, x, y 값을 모두 복사해옴)
             sourcesToLoad.push({ ...IMAGE_SOURCES.todo[todoValue], blendMode: 'multiply' });
 
             if (exerciseValues.includes('workout')) {
@@ -96,6 +99,7 @@
             
             sourcesToLoad.push({ ...IMAGE_SOURCES.relationship[relationshipKey], blendMode: 'multiply' });
 
+            // [수정됨] breakfastAssign 키는 이제 'small', 'medium', 'large'입니다.
             if (urlParams.has('breakfast')) {
                 sourcesToLoad.push({ ...IMAGE_SOURCES.meals[breakfastAssign], blendMode: 'multiply' });
             }
@@ -107,7 +111,7 @@
             }
 
             try {
-                // 3. 이미지 로드 (변경 없음)
+                // 5. 이미지 로드
                 const loadedImagePromises = sourcesToLoad.map(item => {
                     return new Promise((resolve, reject) => {
                         if (!item.src) { 
@@ -122,7 +126,6 @@
                 });
                 const loadedImageObjects = await Promise.all(loadedImagePromises);
                 
-                // 4. 캔버스 초기화 (변경 없음)
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                 // ----------------------------------------------------
@@ -130,12 +133,11 @@
                 // ----------------------------------------------------
                 const fixedSize = 300; 
 
-                // 5. 이미지 그리기
+                // 6. 이미지 그리기
                 for (const item of loadedImageObjects) {
                     if (item.img.width > 0) { 
                         ctx.globalCompositeOperation = item.blendMode;
                         
-                        // item.width와 item.height 대신 fixedSize를 사용
                         const x = item.x - (fixedSize / 2);
                         const y = item.y - (fixedSize / 2);
                         
@@ -145,7 +147,7 @@
                 
                 ctx.globalCompositeOperation = 'source-over'; 
 
-                // 6. 다운로드 링크 생성 (변경 없음)
+                // 7. 다운로드 링크 생성
                 const dataURL = canvas.toDataURL('image/png');
                 downloadLink.href = dataURL;
                 downloadLink.style.display = 'block';
