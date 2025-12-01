@@ -17,6 +17,57 @@
         #download-link { display: none; margin-top: 20px; padding: 10px 20px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; transition: background-color 0.2s; }
         #download-link:hover { background-color: #218838; }
         #loading-text { display: block; margin-top: 20px; font-style: italic; color: #555; }
+        
+    /* [CSS 파일 또는 <style> 태그 안에 추가] */
+
+    #loading-overlay {
+        display: none; /* 평소에는 숨김 */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.95); /* 배경을 살짝 불투명하게 */
+        z-index: 9999; /* 모든 요소보다 위에 뜨도록 */
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .loader-content {
+        text-align: center;
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    .loader-content p {
+        margin-top: 20px;
+        font-size: 1.2em;
+        color: #333;
+        font-weight: bold;
+        font-family: sans-serif;
+    }
+
+    /* 빙글빙글 도는 원 애니메이션 */
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #007aff; /* 파란색 포인트 */
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto; /* 중앙 정렬 */
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
     </style>
 </head>
 <body>
@@ -33,18 +84,28 @@
             ☁️ Depressed
         </button>
         <button onclick="viewAnimation('active')" style="padding: 12px 20px; background: #FF7F50; border: none; border-radius: 25px; cursor: pointer; color: white; font-weight: bold; font-size: 0.9em; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-            🔥 Happy
+            ☀️ Happy
+        </button>
+        <button onclick="viewAnimation('angry')" style="padding: 12px 20px; background: #FF4500; border: none; border-radius: 25px; cursor: pointer; color: white; font-weight: bold; font-size: 0.9em; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            🔥 Angry
         </button>
     </div>
 </div>
 
 <script>
-    // [기존 스크립트 아래에 추가]
-    function viewAnimation(mode) {
+    // [result.html의 <script> 안에 있는 viewAnimation 함수를 이걸로 교체]
+
+function viewAnimation(mode) {
+    // 1. 로딩 화면을 보여줍니다 (Flexbox로 설정하여 중앙 정렬)
+    document.getElementById('loading-overlay').style.display = 'flex';
+
+    // 2. 3초(3000ms) 뒤에 페이지를 이동합니다
+    setTimeout(() => {
         const currentParams = new URLSearchParams(window.location.search);
-        currentParams.set('mode', mode); // mode 파라미터 추가
+        currentParams.set('mode', mode);
         window.location.href = 'animation.html?' + currentParams.toString();
-    }
+    }, 3000); // <-- 여기서 시간 조절 가능 (1000 = 1초)
+}
 </script>
     </div>
     
@@ -191,5 +252,12 @@
             }
         });
     </script>
+
+    <div id="loading-overlay">
+    <div class="loader-content">
+        <div class="spinner"></div>
+        <p>AI is giving the image movement!</p>
+    </div>
+</div>
 </body>
 </html>

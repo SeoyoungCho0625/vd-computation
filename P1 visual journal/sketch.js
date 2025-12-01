@@ -109,42 +109,62 @@ function setup() {
   noStroke();
 }
 
-function draw() {
-  clear(); // 배경 투명하게 지우기 (또는 background(255)로 흰색 설정)
-  // background('#fff'); // 필요하면 주석 해제
+// [sketch.js] draw 함수 전체를 이것으로 교체하세요
 
-  // 혼합 모드 설정 (result.html의 blendMode: 'multiply' 효과)
+function draw() {
+  clear(); 
+  // background('#fff'); // 필요 시 주석 해제
+
   blendMode(MULTIPLY);
 
-  // 모드에 따른 움직임 파라미터 설정
-  let speed = (mode === 'active') ? 0.05 : 0.01; 
-  let amp = (mode === 'active') ? 15 : 5;       // 움직임 범위
+  // 모드별 설정
+  let speed, amp;
 
-  // 로드된 모든 이미지 그리기
+  if (mode === 'active') {
+    speed = 0.05; 
+    amp = 15;
+  } else if (mode === 'calm') {
+    speed = 0.01; 
+    amp = 5;
+  }
+  // 'angry'는 불규칙한 움직임이라 위 변수 대신 아래에서 따로 처리합니다.
+
   for (let i = 0; i < images.length; i++) {
     let item = images[i];
+    let offsetX = 0;
+    let offsetY = 0;
     
-    // 각 이미지마다 고유한 움직임 주기 (i를 더해서 서로 다른 타이밍에 움직이게 함)
-    let offsetX = cos(frameCount * speed + i) * amp;
-    let offsetY = sin(frameCount * speed + i) * amp;
+    // --- [핵심] 움직임 계산 ---
+    if (mode === 'angry') {
+      // 1. 화난 무드: 격렬한 진동 (Shake)
+      // 매 프레임마다 -5 ~ +5 사이의 랜덤한 위치로 튐
+      offsetX = random(-5, 5); 
+      offsetY = random(-5, 5);
+    } else {
+      // 2. 잔잔/활기찬 무드: 부드러운 파동 (Wave)
+      offsetX = cos(frameCount * speed + i) * amp;
+      offsetY = sin(frameCount * speed + i) * amp;
+    }
     
-    // active 모드일 때는 약간의 회전도 추가
     push();
     translate(item.x + offsetX, item.y + offsetY);
     
+    // --- [핵심] 회전 및 효과 ---
     if (mode === 'active') {
-      rotate(sin(frameCount * 0.02 + i) * 0.1); // 살짝 흔들거림
+      rotate(sin(frameCount * 0.02 + i) * 0.1); // 살짝 흔들
+    } else if (mode === 'angry') {
+      rotate(random(-0.1, 0.1)); // 거칠게 틱틱거리는 회전
+      
+      // (선택사항) 이미지를 붉게 만듦 (RGB값 조절: 빨간색은 그대로, 초록/파랑을 줄임)
+      tint(255, 100, 100); 
+    } else {
+       noTint(); // 다른 모드일 때는 원래 색
     }
 
-    // 이미지를 300x300 크기로 그림 (result.html의 fixedSize와 동일)
-    // 원본 위치값은 result.html에서 중앙점 기준이 아니라 좌상단 기준이었을 수 있으나,
-    // 여기서는 translate와 imageMode(CENTER)를 조합해 자연스럽게 배치
-    // result.html 로직: x - (size/2) 였으므로, p5의 imageMode(CENTER)와 item.x 그대로 쓰면 위치 얼추 맞음
     image(item.img, 0, 0, 300, 300);
     
     pop();
   }
 
-  // 기본 블렌드 모드로 복귀 (필요 시)
   blendMode(BLEND);
 }
