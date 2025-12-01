@@ -26,6 +26,26 @@
         <canvas id="image-canvas" width="600" height="600"></canvas>
         <span id="loading-text">Generating...</span>
         <a id="download-link" download="my-daily-avatar.png">Save your Today!</a>
+        <div style="margin-top: 30px; text-align: center; border-top: 1px dashed #ccc; padding-top: 20px; width: 100%;">
+    <p style="margin-bottom: 15px; font-weight: 500; color: #555;">How did you feel today?</p>
+    <div style="display: flex; gap: 15px; justify-content: center;">
+        <button onclick="viewAnimation('calm')" style="padding: 12px 20px; background: #87CEEB; border: none; border-radius: 25px; cursor: pointer; color: white; font-weight: bold; font-size: 0.9em; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            ☁️ Depressed
+        </button>
+        <button onclick="viewAnimation('active')" style="padding: 12px 20px; background: #FF7F50; border: none; border-radius: 25px; cursor: pointer; color: white; font-weight: bold; font-size: 0.9em; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            🔥 Happy
+        </button>
+    </div>
+</div>
+
+<script>
+    // [기존 스크립트 아래에 추가]
+    function viewAnimation(mode) {
+        const currentParams = new URLSearchParams(window.location.search);
+        currentParams.set('mode', mode); // mode 파라미터 추가
+        window.location.href = 'animation.html?' + currentParams.toString();
+    }
+</script>
     </div>
     
     <script>
