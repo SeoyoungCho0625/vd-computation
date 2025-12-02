@@ -1,8 +1,7 @@
 let images = []; // 로드된 이미지들을 담을 배열
-let mode = 'calm'; // 기본 모드
-let canvasSize = 600; // 캔버스 크기
+let mode = 'calm'; // 기본 모드 (URL 파라미터가 없으면 calm)
 
-// 이미지 파일 경로 매핑 (result.html의 IMAGE_SOURCES와 동일하게 맞춤)
+// result.html의 IMAGE_SOURCES와 동일한 매핑
 const IMAGE_MAP = {
   meals: {
     'small': 'meal1.png',
@@ -25,9 +24,10 @@ const IMAGE_MAP = {
   }
 };
 
-// 헬퍼 함수: 로컬스토리지 값 가져오기 (result.html과 동일 로직)
+// 로컬스토리지 값 가져오기 헬퍼 함수
 function getMealAssignment(mealType) {
   let value = localStorage.getItem(`mealAssignment_${mealType}`);
+  // 유효한 값이 아니면 medium으로 처리
   if (value !== 'small' && value !== 'medium' && value !== 'large') {
     value = 'medium';
   }
@@ -36,29 +36,24 @@ function getMealAssignment(mealType) {
 
 function preload() {
   // 1. URL 파라미터 파싱
-  let params = getURLParams(); // p5.js 내장 함수
-  
+  let params = getURLParams();
   if (params.mode) mode = params.mode;
 
   let todoVal = params.todo || 'high';
-  // exercise는 여러 개일 수 있으므로 배열로 처리 필요하지만, 
-  // p5의 getURLParams는 중복 키를 하나만 가져오는 경우가 있어 직접 파싱
+  // p5.js에서 배열 파라미터 가져오기 위한 우회 방법
   const urlObj = new URL(window.location.href);
   const exerciseVals = urlObj.searchParams.getAll('exercise');
   
   let relVal = parseInt(params.relationship || '50', 10);
   let relKey = (relVal <= 33) ? 'low' : (relVal <= 66) ? 'medium' : 'high';
 
-  // 2. 이미지 로드 리스트 작성
-  // (result.html의 좌표: todo(250,250), exercise/rel(300,300), meals(340,340))
-  // p5.js에서는 이미지를 중심 기준으로 그리기 위해 imageMode(CENTER)를 쓸 예정입니다.
+  // 2. 이미지 로드 (result.html의 좌표 x, y 그대로 사용)
   
   // (1) To-do
   if (IMAGE_MAP.todo[todoVal]) {
     images.push({ 
       img: loadImage(IMAGE_MAP.todo[todoVal]), 
-      x: 250, y: 250, 
-      type: 'todo' 
+      x: 250, y: 250 
     });
   }
 
@@ -66,104 +61,133 @@ function preload() {
   if (exerciseVals.includes('workout')) {
     images.push({ 
       img: loadImage(IMAGE_MAP.exercise.workout), 
-      x: 300, y: 300, 
-      type: 'exercise' 
+      x: 300, y: 300 
     });
   }
   if (exerciseVals.includes('water')) {
     images.push({ 
       img: loadImage(IMAGE_MAP.exercise.water), 
-      x: 300, y: 300, 
-      type: 'exercise' 
+      x: 300, y: 300 
     });
   }
 
   // (3) Relationship
   images.push({ 
     img: loadImage(IMAGE_MAP.relationship[relKey]), 
-    x: 300, y: 300, 
-    type: 'relationship' 
+    x: 300, y: 300 
   });
 
-  // (4) Meals (파라미터에 있는지 확인 후 로드)
-  // p5.js에서 URLSearchParams를 직접 쓰기 위해 window 객체 사용
+  // (4) Meals
   const urlParams = new URLSearchParams(window.location.search);
-  
   if (urlParams.has('breakfast')) {
     let assign = getMealAssignment('breakfast');
-    images.push({ img: loadImage(IMAGE_MAP.meals[assign]), x: 340, y: 340, type: 'meal' });
+    images.push({ img: loadImage(IMAGE_MAP.meals[assign]), x: 340, y: 340 });
   }
   if (urlParams.has('lunch')) {
     let assign = getMealAssignment('lunch');
-    images.push({ img: loadImage(IMAGE_MAP.meals[assign]), x: 340, y: 340, type: 'meal' });
+    images.push({ img: loadImage(IMAGE_MAP.meals[assign]), x: 340, y: 340 });
   }
   if (urlParams.has('dinner')) {
     let assign = getMealAssignment('dinner');
-    images.push({ img: loadImage(IMAGE_MAP.meals[assign]), x: 340, y: 340, type: 'meal' });
+    images.push({ img: loadImage(IMAGE_MAP.meals[assign]), x: 340, y: 340 });
   }
 }
 
 function setup() {
-  createCanvas(600, 600); // result.html 캔버스 크기와 동일
-  imageMode(CENTER);      // 좌표를 이미지의 중심점으로 설정
+  createCanvas(600, 600);
+  imageMode(CENTER); // 이미지를 중심점 기준으로 그리기
   noStroke();
 }
 
-// [sketch.js] draw 함수 전체를 이것으로 교체하세요
-
 function draw() {
-  clear(); 
-  // background('#fff'); // 필요 시 주석 해제
+  clear(); // 배경 투명하게 (또는 background('#fefee5');)
+  blendMode(MULTIPLY); // 색상 섞임 효과
 
-  blendMode(MULTIPLY);
-
-  // 모드별 설정
-  let speed, amp;
+  // ---------------------------------------------------------
+  // 1. 모드별 움직임 속도(speed)와 범위(amp) 설정
+  // ---------------------------------------------------------
+  let speed = 0.01; // 기본값
+  let amp = 5;      // 기본값
 
   if (mode === 'active') {
-    speed = 0.05; 
-    amp = 15;
+    speed = 0.05; amp = 15;
   } else if (mode === 'calm') {
-    speed = 0.01; 
-    amp = 5;
+    speed = 0.01; amp = 5;
+  } else if (mode === 'love') {
+    speed = 0.1; amp = 0;   // Love는 위치 이동보다 두근거림(Scale) 위주
+  } else if (mode === 'chaos') {
+    speed = 0.05; amp = 10; // Chaos는 빠르고 범위도 있음
   }
-  // 'angry'는 불규칙한 움직임이라 위 변수 대신 아래에서 따로 처리합니다.
+  // angry는 아래에서 따로 처리
 
+  // ---------------------------------------------------------
+  // 2. 이미지 그리기 반복문
+  // ---------------------------------------------------------
   for (let i = 0; i < images.length; i++) {
     let item = images[i];
+    
+    // [중요] push()로 시작해야 이전 이미지의 변형이 다음 이미지에 영향을 안 줍니다.
+    push(); 
+    
+    // (A) 위치 이동 계산 (Translate)
     let offsetX = 0;
     let offsetY = 0;
-    
-    // --- [핵심] 움직임 계산 ---
+
     if (mode === 'angry') {
-      // 1. 화난 무드: 격렬한 진동 (Shake)
-      // 매 프레임마다 -5 ~ +5 사이의 랜덤한 위치로 튐
-      offsetX = random(-5, 5); 
+      // 화남: 제자리에서 부들부들 떨림 (랜덤)
+      offsetX = random(-5, 5);
       offsetY = random(-5, 5);
     } else {
-      // 2. 잔잔/활기찬 무드: 부드러운 파동 (Wave)
+      // 나머지 모드: 물결처럼 부드러운 파동
+      // Love 모드일 때 amp가 0이면 움직이지 않음 (의도된 바)
       offsetX = cos(frameCount * speed + i) * amp;
       offsetY = sin(frameCount * speed + i) * amp;
     }
-    
-    push();
+
+    // 계산된 위치로 좌표축 이동
     translate(item.x + offsetX, item.y + offsetY);
-    
-    // --- [핵심] 회전 및 효과 ---
+
+
+    // (B) 회전, 크기, 필터 효과 적용
     if (mode === 'active') {
-      rotate(sin(frameCount * 0.02 + i) * 0.1); // 살짝 흔들
+      // 활기참: 살짝 흔들거리며 회전
+      rotate(sin(frameCount * 0.02 + i) * 0.1);
+      noTint();
+
     } else if (mode === 'angry') {
-      rotate(random(-0.1, 0.1)); // 거칠게 틱틱거리는 회전
-      
-      // (선택사항) 이미지를 붉게 만듦 (RGB값 조절: 빨간색은 그대로, 초록/파랑을 줄임)
+      // 화남: 붉은색 + 거칠게 회전
+      rotate(random(-0.1, 0.1));
       tint(255, 100, 100); 
+
+    } else if (mode === 'love') {
+      // 💕 설렘 (Love): 핑크색 + 쿵닥쿵닥 심장박동 (Scale)
+      // 납작해지지 않도록 가로/세로 비율을 동일하게(scale 1개 값) 줍니다.
+      let beat = 1 + sin(frameCount * 0.15) * 0.1; // 0.15 속도로 1.0 ~ 1.1 배 크기 변화
+      scale(beat); 
+      tint(255, 200, 220); // 사랑스러운 핑크빛
+
+    } else if (mode === 'chaos') {
+      // 🌀 혼란 (Chaos): 보라색 + 울렁거림 + 회전
+      // [납작해짐 해결 포인트] shear 값을 너무 크게 주면 이미지가 종이처럼 접혀 보입니다.
+      // 값을 0.3 -> 0.1~0.2 수준으로 낮춰서 '살짝 찌그러짐' 정도로 조절했습니다.
+      let shearVal = sin(frameCount * 0.05 + i) * 0.15; 
+      
+      shearX(shearVal); // 가로 비틀기
+      rotate(frameCount * 0.01); // 빙글빙글 회전
+      tint(200, 180, 255); // 몽환적인 보라빛
+
     } else {
-       noTint(); // 다른 모드일 때는 원래 색
+      // calm (기본): 효과 없음, 원래 색
+      noTint();
     }
 
+    // (C) 이미지 그리기
+    // result.html과 동일하게 300x300 크기로 그립니다.
+    // 이미 좌표를 translate로 옮겼으므로 (0, 0)에 그립니다.
     image(item.img, 0, 0, 300, 300);
-    
-    pop();
+
+    // [중요] pop()으로 끝내야 변형 효과가 초기화됩니다.
+    pop(); 
   }
 
   blendMode(BLEND);
