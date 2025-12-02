@@ -18,6 +18,22 @@
         #download-link:hover { background-color: #218838; }
         #loading-text { display: block; margin-top: 20px; font-style: italic; color: #555; }
         
+        /* [style 태그 안에 추가] 감정 버튼 공통 스타일 */
+        .emotion-btn {
+            transition: all 0.2s ease; /* 0.2초 동안 부드럽게 변함 */
+        }
+
+        .emotion-btn:hover {
+            transform: translateY(-2px) scale(1.05); /* 위로 살짝 뜨면서 커짐 */
+            filter: brightness(0.9);    /* 색깔이 살짝 진해짐 (어두워짐) */
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2) !important; /* 그림자가 더 선명해짐 */
+        }
+
+        /* 클릭했을 때 살짝 눌리는 효과 (선택 사항) */
+        .emotion-btn:active {
+            transform: translateY(0) scale(0.95);
+            filter: brightness(0.8);
+        }
     /* [CSS 파일 또는 <style> 태그 안에 추가] */
 
     #loading-overlay {
@@ -83,23 +99,26 @@
    <div style="display: flex; flex-direction: column; gap: 15px; align-items: center;">
     
     <div style="display: flex; gap: 15px; justify-content: center;">
-        <button onclick="viewAnimation('calm')" style="padding: 12px 20px; background: #87CEEB; border: none; border-radius: 25px; cursor: pointer; color: white; font-weight: bold; font-size: 0.9em; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        <button onclick="viewAnimation('calm')" class="emotion-btn" style="padding: 12px 20px; background: #87CEEB; border: none; border-radius: 25px; cursor: pointer; color: white; font-weight: bold; font-size: 0.9em; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
             ☁️ Calm
         </button>
-        <button onclick="viewAnimation('active')" style="padding: 12px 20px; background: #FF7F50; border: none; border-radius: 25px; cursor: pointer; color: white; font-weight: bold; font-size: 0.9em; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        <button onclick="viewAnimation('active')" class="emotion-btn" style="padding: 12px 20px; background: #FF7F50; border: none; border-radius: 25px; cursor: pointer; color: white; font-weight: bold; font-size: 0.9em; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
             ☀️ Happy
         </button>
-        <button onclick="viewAnimation('angry')" style="padding: 12px 20px; background: #FF4500; border: none; border-radius: 25px; cursor: pointer; color: white; font-weight: bold; font-size: 0.9em; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        <button onclick="viewAnimation('angry')" class="emotion-btn" style="padding: 12px 20px; background: #f85d24; border: none; border-radius: 25px; cursor: pointer; color: white; font-weight: bold; font-size: 0.9em; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
             🔥 Angry
         </button>
     </div>
     
     <div style="display: flex; gap: 15px; justify-content: center;">
-        <button onclick="viewAnimation('chaos')" style="padding: 12px 20px; background: #9370DB; border: none; border-radius: 25px; cursor: pointer; color: white; font-weight: bold; font-size: 0.9em; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        <button onclick="viewAnimation('chaos')" class="emotion-btn" style="padding: 12px 20px; background: #9f7ce5; border: none; border-radius: 25px; cursor: pointer; color: white; font-weight: bold; font-size: 0.9em; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
             🌀 Chaos
         </button>
-        <button onclick="viewAnimation('love')" style="padding: 12px 20px; background: #FF69B4; border: none; border-radius: 25px; cursor: pointer; color: white; font-weight: bold; font-size: 0.9em; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        <button onclick="viewAnimation('love')" class="emotion-btn" style="padding: 12px 20px; background: #f57bb8; border: none; border-radius: 25px; cursor: pointer; color: white; font-weight: bold; font-size: 0.9em; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
             💕 Excited
+        </button>
+        <button onclick="viewAnimation('anxious')" class="emotion-btn" style="padding: 12px 20px; background: #45d0c9; border: none; border-radius: 25px; cursor: pointer; color: white; font-weight: bold; font-size: 0.9em; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            😨 Anxious
         </button>
     </div>
 

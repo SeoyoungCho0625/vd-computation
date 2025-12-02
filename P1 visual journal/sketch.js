@@ -133,10 +133,16 @@ function draw() {
     let offsetX = 0;
     let offsetY = 0;
 
-    if (mode === 'angry') {
-      // 화남: 제자리에서 부들부들 떨림 (랜덤)
+   if (mode === 'angry') {
+  // 화남: 거친 진동
       offsetX = random(-5, 5);
       offsetY = random(-5, 5);
+    } else if (mode === 'anxious') {
+      // 불안: 초조하게 덜덜 떨림 (범위는 작게)
+      offsetX = random(-2, 2);
+      offsetY = random(-2, 2);
+    
+  // 나머지 Wave 움직임 ...
     } else {
       // 나머지 모드: 물결처럼 부드러운 파동
       // Love 모드일 때 amp가 0이면 움직이지 않음 (의도된 바)
@@ -175,6 +181,14 @@ function draw() {
       shearX(shearVal); // 가로 비틀기
       rotate(frameCount * 0.01); // 빙글빙글 회전
       tint(200, 180, 255); // 몽환적인 보라빛
+
+      } else if (mode === 'anxious') {
+        speed = 0.5; amp = 2; // 속도는 매우 빠르고, 범위는 작게 (떨림)
+        tint(200, 255, 200); // 창백한 연두빛
+  
+        // 크기도 미세하게 계속 변함 (긴장감)
+        let nervousScale = 0.95 + random(0.1); 
+        scale(nervousScale);
 
     } else {
       // calm (기본): 효과 없음, 원래 색
