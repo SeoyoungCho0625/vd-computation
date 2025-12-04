@@ -206,3 +206,64 @@ function draw() {
 
   blendMode(BLEND);
 }
+
+// 녹화버튼
+
+function saveVideo() {
+  // 1. 현재 화면에 있는 캔버스 찾기
+  const canvas = document.querySelector('canvas');
+  if (!canvas) {
+    alert('캔버스를 찾을 수 없습니다.');
+    return;
+  }
+
+  // 2. 버튼 스타일 변경 (녹화 중임을 알림)
+  const btn = document.getElementById('record-btn');
+  if (btn) {
+    btn.innerText = '🔴 Recording... (wait for a sec!)';
+    btn.style.backgroundColor = 'red';
+    btn.disabled = true; // 중복 클릭 방지
+  }
+
+  // 3. 녹화 시작 (MediaRecorder API 사용)
+  // 초당 30프레임으로 캡처
+  const stream = canvas.captureStream(30); 
+  const recorder = new MediaRecorder(stream);
+  const chunks = [];
+
+  // 데이터가 모이면 배열에 저장
+  recorder.ondataavailable = (e) => {
+    if (e.data.size > 0) {
+      chunks.push(e.data);
+    }
+  };
+
+  // 녹화가 멈추면 파일로 만들어서 다운로드
+  recorder.onstop = () => {
+    const blob = new Blob(chunks, { type: 'video/webm' });
+    const url = URL.createObjectURL(blob);
+    
+    // 다운로드 링크 생성 및 클릭
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `my-emotion-${mode}.webm`; // 파일명: my-emotion-love.webm 등
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    
+    // 버튼 원래대로 복구
+    if (btn) {
+      btn.innerText = '🎥 Save your emotion ';
+      btn.style.backgroundColor = '#333';
+      btn.disabled = false;
+    }
+  };
+
+  // 녹화 시작
+  recorder.start();
+
+  // 4. 5초(5000ms) 뒤에 자동으로 녹화 종료
+  setTimeout(() => {
+    recorder.stop();
+  }, 5000);
+}

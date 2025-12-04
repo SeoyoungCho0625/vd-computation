@@ -33,13 +33,40 @@
         .back-btn:hover {
             background-color: #555;
         }
+        #record-btn {
+        padding: 10px 20px;
+        margin-bottom: 20px;
+        background-color: #333; 
+        border: none;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.2s ease; /* 부드럽게 색이 변하도록 */
+        }
+
+        #record-btn:hover {
+            background-color: #555; /* 마우스 올렸을 때 색상 (약간 밝은 회색) */
+        }
+
+        #record-btn:disabled {
+            background-color: red; /* 녹화 중일 때 색상 */
+            cursor: not-allowed;
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
     <script src="sketch.js"></script>
 </head>
 <body>
     <main>
+<div style="margin-top: 20px; text-align: center;">
+    <button id="record-btn" onclick="saveVideo()" style="color: #fff"; >
+        🎥 Save your emotion
+    </button>
+    </div>
         </main>
     <a href="javascript:history.back()" class="back-btn">Go Back</a>
+
 </body>
+ 
 </html>
